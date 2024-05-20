@@ -31,6 +31,7 @@ const AddProjectModal = ({
   const handleAddProyek = async () => {
     const response = await AddProject(name);
     onClose();
+    location.reload();
   };
 
   return (

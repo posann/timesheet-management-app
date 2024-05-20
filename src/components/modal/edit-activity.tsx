@@ -1,3 +1,5 @@
+import { ActivityResponseData, ProjectResponseData } from "@/types";
+import { GetProject } from "@/utils/network/get-project";
 import {
   Button,
   FormControl,
@@ -11,9 +13,9 @@ import {
   ModalBody,
   ModalFooter,
   Flex,
+  Select,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { DataTypeTable } from "../table-antd/data-type";
 
 const EditActivityModal = ({
   isOpen,
@@ -23,13 +25,26 @@ const EditActivityModal = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (activity: DataTypeTable) => void;
-  record: DataTypeTable;
+  onEdit: (activity: ActivityResponseData) => void;
+  record: ActivityResponseData;
 }) => {
-  const [editedActivity, setEditedActivity] = useState<DataTypeTable>(record);
+  const [editedActivity, setEditedActivity] =
+    useState<ActivityResponseData>(record);
+  const [project, setProject] = useState<ProjectResponseData[]>([]);
+
+  const [selectedProject, setSelectedProject] = useState(record.id_project);
 
   useEffect(() => {
     setEditedActivity(record);
+    const fetchDataNameProject = async () => {
+      try {
+        const response = await GetProject();
+        setProject(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchDataNameProject();
   }, [record]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +56,10 @@ const EditActivityModal = ({
   };
 
   const handleEdit = () => {
-    onEdit(editedActivity);
+    onEdit({
+      ...editedActivity,
+      id_project: selectedProject,
+    });
     onClose();
   };
 
@@ -62,11 +80,25 @@ const EditActivityModal = ({
           </FormControl>
           <FormControl mt={4}>
             <FormLabel>Nama Proyek</FormLabel>
-            <Input
+            <Select
+              placeholder="Pilih Nama Proyek"
               name="name"
-              value={editedActivity.name}
-              onChange={handleInputChange}
-            />
+              value={Number(selectedProject)}
+              onChange={(e) => {
+                setSelectedProject(Number(e.target.value));
+              }}
+              required
+            >
+              {project.map((item) => (
+                <option
+                  key={item.id}
+                  value={item.id}
+                  selected={item.id === record.id_project}
+                >
+                  {item.name}
+                </option>
+              ))}
+            </Select>
           </FormControl>
           <Flex mt={4} gap={4} direction={"row"}>
             <FormControl>
@@ -74,7 +106,7 @@ const EditActivityModal = ({
               <Input
                 type="date"
                 name="dateStart"
-                value={editedActivity.dateStart}
+                value={editedActivity.dateStart.toString() || "2000-01-01"}
                 onChange={handleInputChange}
               />
             </FormControl>
@@ -83,7 +115,7 @@ const EditActivityModal = ({
               <Input
                 type="date"
                 name="dateEnd"
-                value={editedActivity.dateEnd}
+                value={editedActivity.dateEnd.toString() || "2000-01-01"}
                 onChange={handleInputChange}
               />
             </FormControl>

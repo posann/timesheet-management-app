@@ -20,11 +20,12 @@ import {
   FaRegFaceSmile,
 } from "react-icons/fa6";
 import TableUIAntd from "../table-antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddActivityModal from "../modal/add-activity";
 import ExportButtons from "../button-export";
 import AddProjectModal from "../modal/add-project";
 import { ActivityResponseData } from "@/types";
+import { GetProjectByID } from "@/utils/network/get-project-id";
 
 export const ActivityList = ({
   name,
@@ -39,12 +40,41 @@ export const ActivityList = ({
 }) => {
   const [isOpenModal1, setIsOpenModal1] = useState(false);
   const [isOpenModal2, setIsOpenModal2] = useState(false);
+  const [updateData, setUpdateData] = useState<ActivityResponseData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const onOpenModal1 = () => setIsOpenModal1(true);
   const onCloseModal1 = () => setIsOpenModal1(false);
 
   const onOpenModal2 = () => setIsOpenModal2(true);
   const onCloseModal2 = () => setIsOpenModal2(false);
+
+  useEffect(() => {
+    const updateDataAsync = async () => {
+      const updatedData = await Promise.all(
+        data.map(async (item) => {
+          try {
+            const res = await GetProjectByID(item.id_project);
+            return { ...item, id_project: res.data.name };
+          } catch (error) {
+            console.log(error);
+            return item; // return item as is if there's an error
+          }
+        })
+      );
+      setUpdateData(updatedData);
+    };
+
+    updateDataAsync();
+  }, [data]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredData = updateData.filter((item) =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Stack>
@@ -77,7 +107,7 @@ export const ActivityList = ({
           variant={"outline"}
           colorScheme="blue"
           onClick={onOpenModal1}
-          hidden={name === "" || name == null ? true : false}
+          hidden={name === "" || name == null}
         >
           <FaFileCirclePlus />
           <Text ml={2}>Tambah Kegiatan</Text>
@@ -87,7 +117,7 @@ export const ActivityList = ({
           variant={"outline"}
           colorScheme="green"
           onClick={onOpenModal2}
-          hidden={name === "" || name == null ? true : false}
+          hidden={name === "" || name == null}
         >
           <FaDiagramProject />
           <Text ml={2}>Tambah Proyek</Text>
@@ -99,9 +129,17 @@ export const ActivityList = ({
           direction={{ base: "column", md: "row" }}
           justifyContent={"space-between"}
         >
-          <ExportButtons filteredData={data} />
+          <ExportButtons filteredData={filteredData} />
+          <Input
+            size={"sm"}
+            type="text"
+            placeholder="Cari Kegiatan"
+            width={{ base: "100%", md: "30%" }}
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
         </Flex>
-        <TableUIAntd data={data} />
+        <TableUIAntd data={filteredData} />
       </Stack>
 
       <AddActivityModal isOpen={isOpenModal1} onClose={onCloseModal1} id={id} />

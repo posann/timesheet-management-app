@@ -86,6 +86,7 @@ const AddActivityModal = ({
       console.error(error);
     }
 
+    location.reload();
     onClose();
   };
 
