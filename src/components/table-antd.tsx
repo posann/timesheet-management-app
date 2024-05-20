@@ -6,6 +6,7 @@ import type { TableProps } from "antd";
 import { columns_type } from "./table-antd/columns_type";
 import { Box, Divider, Flex, Text } from "@chakra-ui/react";
 import { ActivityResponseData } from "@/types";
+import { TotalDuration } from "@/utils/total-duration";
 
 const onChange: TableProps<ActivityResponseData>["onChange"] = (
   pagination,
@@ -16,7 +17,13 @@ const onChange: TableProps<ActivityResponseData>["onChange"] = (
   console.log("params", pagination, filters, sorter, extra);
 };
 
-const TableUIAntd = ({ data }: { data: ActivityResponseData[] }) => (
+const TableUIAntd = ({
+  data,
+  rate,
+}: {
+  data: ActivityResponseData[];
+  rate: number;
+}) => (
   <Table
     columns={columns_type}
     dataSource={data}
@@ -30,7 +37,7 @@ const TableUIAntd = ({ data }: { data: ActivityResponseData[] }) => (
         <Flex mt={4} rounded={"lg"} justify="space-between" direction={"row"}>
           <Text fontWeight={"400"}>Total Durasi</Text>
           <Text fontWeight={"bold"} color={"blue.400"}>
-            10 jam
+            {TotalDuration(data)} Jam
           </Text>
         </Flex>
         <Divider my={2} h={0.6} orientation="horizontal" bg={"blue.400"} />
@@ -39,7 +46,7 @@ const TableUIAntd = ({ data }: { data: ActivityResponseData[] }) => (
             Total Pendapatan
           </Text>
           <Text fontWeight={"bold"} fontSize={"md"} color={"blue.400"}>
-            Rp. 100.000
+            Rp.{rate * TotalDuration(data)}
           </Text>
         </Flex>
       </Box>

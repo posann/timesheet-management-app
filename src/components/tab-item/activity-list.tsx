@@ -2,7 +2,6 @@
 
 import {
   Badge,
-  Box,
   Button,
   Divider,
   Flex,
@@ -139,7 +138,7 @@ export const ActivityList = ({
             onChange={handleSearchChange}
           />
         </Flex>
-        <TableUIAntd data={filteredData} />
+        <TableUIAntd data={filteredData} rate={rate} />
       </Stack>
 
       <AddActivityModal isOpen={isOpenModal1} onClose={onCloseModal1} id={id} />

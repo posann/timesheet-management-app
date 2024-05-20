@@ -1,4 +1,5 @@
 import { ProjectResponseData } from "@/types";
+import { Duration } from "@/utils/duration";
 import { AddActivityData } from "@/utils/network/add-activity";
 import { GetProject } from "@/utils/network/get-project";
 import {
@@ -51,6 +52,10 @@ const AddActivityModal = ({
   };
 
   const handleAdd = () => {
+    const duration = Duration(
+      newActivity.timeStart.toString(),
+      newActivity.timeEnd.toString()
+    );
     const data: {
       title: string;
       id_project: number;
@@ -68,7 +73,7 @@ const AddActivityModal = ({
       dateEnd: newActivity.dateEnd,
       timeStart: newActivity.timeStart,
       timeEnd: newActivity.timeEnd,
-      duration: "5000",
+      duration: duration.toString(),
     };
 
     try {
