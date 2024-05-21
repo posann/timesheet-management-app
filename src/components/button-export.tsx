@@ -51,18 +51,18 @@ const ExportButtons = ({
       <Button
         variant={"solid"}
         colorScheme="green"
-        size={"sm"}
+        size={"xs"}
         onClick={handleExportToExcel}
       >
-        Export to Excel
+        EXCEL
       </Button>
       <Button
         variant={"solid"}
         colorScheme="red"
-        size={"sm"}
+        size={"xs"}
         onClick={handleExportToPDF}
       >
-        Export to PDF
+        PDF
       </Button>
     </Flex>
   );
