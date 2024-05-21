@@ -16,20 +16,28 @@ import {
 } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
 import { FaClock } from "react-icons/fa6";
+import ToastComponent from "../toast";
 
 export const Pengaturan = ({ name, rate }: { name: string; rate: number }) => {
   const [nameInput, setNameInput] = useState<string>(name);
   const [rateInput, setRateInput] = useState<number>(rate);
   const [isLoading, setIsLoading] = useState(false);
 
-  const toast = useToast();
+  const [status, setStatus] = useState<number | null>(null);
+
+  const handleSuccess = () => setStatus(1);
+  const handleError = () => setStatus(2);
+  const handleLoading = () => setStatus(3);
 
   const handleButtonSimpan = async () => {
     setIsLoading(true);
+    handleLoading();
     try {
       const response = await AddEmployee(nameInput, rateInput);
+      handleSuccess();
     } catch (error) {
       console.log(error);
+      handleError();
     } finally {
       setIsLoading(false);
       // Refresh the browser without using cache
@@ -75,6 +83,7 @@ export const Pengaturan = ({ name, rate }: { name: string; rate: number }) => {
           </Stack>
         </Box>
       </Stack>
+      {status !== null && <ToastComponent status={status} />}
     </Flex>
   );
 };

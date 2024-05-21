@@ -5,11 +5,18 @@ import EditActivityModal from "./modal/edit-activity";
 import { ActivityResponseData } from "@/types";
 import { DeleteActivity } from "@/utils/network/delete-activity";
 import { UpdateActivity } from "@/utils/network/update-activity";
+import ToastComponent from "./toast";
 
 export const ActionButton = ({ record }: { record: ActivityResponseData }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRecord, setSelectedRecord] =
     useState<ActivityResponseData | null>(null);
+
+  const [status, setStatus] = useState<number | null>(null);
+
+  const handleSuccess = () => setStatus(1);
+  const handleError = () => setStatus(2);
+  const handleLoading = () => setStatus(3);
 
   const handleEditClick = () => {
     setSelectedRecord(record);
@@ -17,14 +24,24 @@ export const ActionButton = ({ record }: { record: ActivityResponseData }) => {
   };
 
   const handleEdit = async (editedRecord: ActivityResponseData) => {
-    const updateData = await UpdateActivity(record.id, editedRecord);
-    onClose();
-    location.reload();
+    await handleLoading();
+    try {
+      const updateData = await UpdateActivity(record.id, editedRecord);
+      onClose();
+      await handleSuccess();
+    } catch {
+      await handleError();
+    }
   };
 
   const handleDelete = async () => {
-    const res = await DeleteActivity(record.id);
-    location.reload();
+    await handleLoading();
+    try {
+      await DeleteActivity(record.id);
+      await handleSuccess();
+    } catch {
+      await handleError();
+    }
   };
 
   return (
@@ -55,6 +72,7 @@ export const ActionButton = ({ record }: { record: ActivityResponseData }) => {
           record={selectedRecord}
         />
       )}
+      {status !== null && <ToastComponent status={status} />}
     </>
   );
 };

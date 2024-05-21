@@ -19,6 +19,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import ToastComponent from "../toast";
 
 const AddActivityModal = ({
   isOpen,
@@ -51,7 +52,14 @@ const AddActivityModal = ({
     }));
   };
 
-  const handleAdd = () => {
+  const [status, setStatus] = useState<number | null>(null);
+
+  const handleSuccess = () => setStatus(1);
+  const handleError = () => setStatus(2);
+  const handleLoading = () => setStatus(3);
+
+  const handleAdd = async () => {
+    await handleLoading();
     const duration = Duration(
       newActivity.timeStart.toString(),
       newActivity.timeEnd.toString()
@@ -87,11 +95,13 @@ const AddActivityModal = ({
         data.timeEnd,
         data.duration
       );
+
+      await handleSuccess();
     } catch (error) {
+      handleError();
       console.error(error);
     }
 
-    location.reload();
     onClose();
   };
 
@@ -117,7 +127,7 @@ const AddActivityModal = ({
     setIsValid(isInputValid);
 
     fetchDataNameProject();
-  }, [newActivity, selectedProject]);
+  }, [newActivity, selectedProject, status]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -214,6 +224,7 @@ const AddActivityModal = ({
           )}
         </ModalFooter>
       </ModalContent>
+      {status !== null && <ToastComponent status={status} />}
     </Modal>
   );
 };

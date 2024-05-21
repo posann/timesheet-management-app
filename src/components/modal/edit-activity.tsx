@@ -1,4 +1,5 @@
 import { ActivityResponseData, ProjectResponseData } from "@/types";
+import { Duration } from "@/utils/duration";
 import { GetProject } from "@/utils/network/get-project";
 import {
   Button,
@@ -56,9 +57,14 @@ const EditActivityModal = ({
   };
 
   const handleEdit = () => {
+    const duration = Duration(
+      editedActivity.timeStart.toString(),
+      editedActivity.timeEnd.toString()
+    );
     onEdit({
       ...editedActivity,
       id_project: selectedProject,
+      duration: duration.toString(),
     });
     onClose();
   };
